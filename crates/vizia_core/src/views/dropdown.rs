@@ -146,7 +146,7 @@ impl Dropdown {
     {
         Self {}
             .build(cx, move |cx| {
-                PopupData::default().build(cx);
+                PopupData::default().build();
 
                 (label)(cx)
                     .class("title")

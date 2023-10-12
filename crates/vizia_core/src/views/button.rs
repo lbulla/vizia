@@ -72,20 +72,21 @@ impl Button {
     /// #
     /// Button::new(cx, |_| {}, |cx| Label::new(cx, "Text"));
     /// ```
-    pub fn new<A, C, V>(cx: &mut Context, action: A, content: C) -> Handle<Self>
+    pub fn new<A, C, V>(action: A, content: C) -> Handle<Self>
     where
         A: 'static + Fn(&mut EventContext),
-        C: FnOnce(&mut Context) -> Handle<V>,
+        C: FnOnce() -> Handle<V>,
         V: 'static + View,
     {
         Self { action: Some(Box::new(action)) }
-            .build(cx, move |cx| {
-                (content)(cx).hoverable(false).class("inner");
+            .build(move || {
+                (content)();
+                //.hoverable(false).class("inner");
             })
-            .role(Role::Button)
-            .default_action_verb(DefaultActionVerb::Click)
+            //.role(Role::Button)
+            //.default_action_verb(DefaultActionVerb::Click)
             .cursor(CursorIcon::Hand)
-            .navigable(true)
+        //.navigable(true)
     }
 }
 

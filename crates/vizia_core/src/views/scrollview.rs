@@ -158,7 +158,7 @@ impl ScrollView<Wrapper<scroll_data_derived_lenses::root>> {
                     container_height: 0.0,
                     on_scroll: None,
                 }
-                .build(cx);
+                .build();
 
                 Self::common_builder(cx, ScrollData::root, content, scroll_x, scroll_y);
             })

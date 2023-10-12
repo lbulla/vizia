@@ -66,6 +66,10 @@ thread_local! {
     pub static CURRENT: RefCell<Entity> = RefCell::new(Entity::root());
 }
 
+thread_local! {
+    pub static CONTEXT: RefCell<Context> = RefCell::new(Context::default());
+}
+
 /// The main storage and control object for a Vizia application.
 pub struct Context {
     pub(crate) entity_manager: IdManager<Entity>,
@@ -139,6 +143,7 @@ impl Default for Context {
 impl Context {
     /// Creates a new context.
     pub fn new(window_size: WindowSize, user_scale_factor: f64) -> Self {
+        println!("create new context");
         let mut cache = CachedData::default();
         cache.add(Entity::root());
 
@@ -223,7 +228,7 @@ impl Context {
         result.style.needs_redraw();
 
         // Build the environment model at the root.
-        Environment::new().build(&mut result);
+        // Environment::new().build();
 
         result.entity_manager.create();
         result.set_default_font(&["Roboto"]);

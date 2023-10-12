@@ -767,15 +767,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug example '7guis_counter'",
+            "name": "Debug example 'counter'",
             "cargo": {
                 "args": [
                     "build",
-                    "--example=7guis_counter",
+                    "--example=counter",
                     "--package=vizia"
                 ],
                 "filter": {
-                    "name": "7guis_counter",
+                    "name": "counter",
                     "kind": "example"
                 }
             },

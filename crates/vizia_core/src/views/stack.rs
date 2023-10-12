@@ -8,15 +8,14 @@ use crate::prelude::*;
 pub struct VStack {}
 
 impl VStack {
-    pub fn new<F>(cx: &mut Context, content: F) -> Handle<Self>
+    pub fn new<F>(content: F) -> Handle<Self>
     where
-        F: FnOnce(&mut Context),
+        F: FnOnce(),
     {
-        Self {}
-            .build(cx, |cx| {
-                (content)(cx);
-            })
-            .role(Role::GenericContainer)
+        Self {}.build(|| {
+            (content)();
+        })
+        // .role(Role::GenericContainer)
     }
 }
 
@@ -30,16 +29,16 @@ impl View for VStack {
 pub struct HStack {}
 
 impl HStack {
-    pub fn new<F>(cx: &mut Context, content: F) -> Handle<Self>
+    pub fn new<F>(content: F) -> Handle<Self>
     where
-        F: FnOnce(&mut Context),
+        F: FnOnce(),
     {
         Self {}
-            .build(cx, |cx| {
-                (content)(cx);
+            .build(|| {
+                (content)();
             })
             .layout_type(LayoutType::Row)
-            .role(Role::GenericContainer)
+        // .role(Role::GenericContainer)
     }
 }
 
@@ -53,12 +52,12 @@ impl View for HStack {
 pub struct ZStack {}
 
 impl ZStack {
-    pub fn new<F>(cx: &mut Context, content: F) -> Handle<Self>
+    pub fn new<F>(content: F) -> Handle<Self>
     where
-        F: FnOnce(&mut Context),
+        F: FnOnce(),
     {
-        Self {}.build(cx, |cx| {
-            (content)(cx);
+        Self {}.build(|| {
+            (content)();
         })
     }
 }

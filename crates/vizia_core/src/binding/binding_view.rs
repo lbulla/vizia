@@ -134,7 +134,7 @@ where
             }
         });
 
-        let _: Handle<Self> = Handle { entity: id, p: Default::default(), cx }.ignore();
+        let _: Handle<Self> = Handle { entity: id, p: Default::default() }.ignore();
     }
 }
 

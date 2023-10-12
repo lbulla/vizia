@@ -465,7 +465,7 @@ fn build_action_model(cx: &mut Context, entity: Entity) {
         .is_none()
     {
         cx.with_current(entity, |cx| {
-            ActionsModel::new().build(cx);
+            ActionsModel::new().build();
         });
     }
 }
@@ -478,12 +478,12 @@ fn build_tooltip_model(cx: &mut Context, entity: Entity) {
         .is_none()
     {
         cx.with_current(entity, |cx| {
-            TooltipModel { tooltip_visible: false }.build(cx);
+            TooltipModel { tooltip_visible: false }.build();
         });
     }
 }
 
-impl<'a, V: View> ActionModifiers<V> for Handle<'a, V> {
+impl<V: View> ActionModifiers<V> for Handle<V> {
     fn tooltip<C: FnOnce(&mut Context)>(self, content: C) -> Self {
         let entity = self.entity();
 
@@ -493,9 +493,9 @@ impl<'a, V: View> ActionModifiers<V> for Handle<'a, V> {
             .on_hover(|cx| cx.emit(TooltipEvent::ShowTooltip))
             .on_hover_out(|cx| cx.emit(TooltipEvent::HideTooltip));
 
-        s.cx.with_current(entity, |cx| {
-            Tooltip::new(cx, content).toggle_class("vis", TooltipModel::tooltip_visible);
-        });
+        // s.cx.with_current(entity, |cx| {
+        //     Tooltip::new(cx, content).toggle_class("vis", TooltipModel::tooltip_visible);
+        // });
 
         s
     }

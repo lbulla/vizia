@@ -12,7 +12,7 @@
 //! .run();
 //! ```
 
-use crate::context::AccessNode;
+use crate::context::{AccessNode, CONTEXT};
 use crate::model::ModelDataStore;
 use crate::prelude::*;
 use crate::systems::get_access_node;
@@ -115,43 +115,56 @@ pub trait View: 'static + Sized {
     /// }
     /// # impl View for CustomView {}
     /// ```
-    fn build<F>(self, cx: &mut Context, content: F) -> Handle<Self>
+    fn build<F>(self, content: F) -> Handle<Self>
     where
-        F: FnOnce(&mut Context),
+        F: FnOnce(),
     {
-        let id = cx.entity_manager.create();
-        let current = cx.current();
-        cx.tree.add(id, current).expect("Failed to add to tree");
-        cx.cache.add(id);
-        cx.style.add(id);
-        cx.views.insert(id, Box::new(self));
-        let parent_id = cx.tree.get_layout_parent(id).unwrap();
-        let parent_node_id = parent_id.accesskit_id();
-        let node_id = id.accesskit_id();
+        let (prev, handle) = CONTEXT.with_borrow_mut(|cx| {
+            let id = cx.entity_manager.create();
+            let current = cx.current();
+            cx.tree.add(id, current).expect("Failed to add to tree");
+            cx.cache.add(id);
+            cx.style.add(id);
+            cx.views.insert(id, Box::new(self));
+            let parent_id = cx.tree.get_layout_parent(id).unwrap();
+            let parent_node_id = parent_id.accesskit_id();
+            let node_id = id.accesskit_id();
 
-        let mut access_context = AccessContext {
-            current: id,
-            tree: &cx.tree,
-            cache: &cx.cache,
-            style: &cx.style,
-            text_context: &mut cx.text_context,
-        };
+            let mut access_context = AccessContext {
+                current: id,
+                tree: &cx.tree,
+                cache: &cx.cache,
+                style: &cx.style,
+                text_context: &mut cx.text_context,
+            };
 
-        if let Some(parent_node) = get_access_node(&mut access_context, &mut cx.views, parent_id) {
-            let parent_node = parent_node.node_builder.build(&mut cx.style.accesskit_node_classes);
-            let node = NodeBuilder::default().build(&mut cx.style.accesskit_node_classes);
-            cx.tree_updates.push(TreeUpdate {
-                nodes: vec![(parent_node_id, parent_node), (node_id, node)],
-                tree: None,
-                focus: None,
-            });
-        }
+            if let Some(parent_node) =
+                get_access_node(&mut access_context, &mut cx.views, parent_id)
+            {
+                let parent_node =
+                    parent_node.node_builder.build(&mut cx.style.accesskit_node_classes);
+                let node = NodeBuilder::default().build(&mut cx.style.accesskit_node_classes);
+                cx.tree_updates.push(TreeUpdate {
+                    nodes: vec![(parent_node_id, parent_node), (node_id, node)],
+                    tree: None,
+                    focus: None,
+                });
+            }
 
-        cx.data.insert(id, ModelDataStore::default());
+            cx.data.insert(id, ModelDataStore::default());
 
-        let handle = Handle { entity: id, p: Default::default(), cx };
+            let handle = Handle { entity: id, p: Default::default() };
+            let prev = cx.current;
+            // cx.with_current(handle.entity, |cx| (content)());
+            cx.set_current(handle.entity);
+            (prev, handle)
+        });
 
-        handle.cx.with_current(handle.entity, content);
+        (content)();
+
+        CONTEXT.with_borrow_mut(|cx| {
+            cx.set_current(prev);
+        });
 
         handle
     }

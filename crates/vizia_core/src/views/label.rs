@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{context::CONTEXT, prelude::*};
 
 /// A label used to display text.
 ///
@@ -99,19 +99,16 @@ impl Label {
     /// #
     /// Label::new(cx, "Text");
     /// ```
-    pub fn new<T>(cx: &mut Context, text: impl Res<T> + Clone) -> Handle<Self>
+    pub fn new<T>(text: impl Res<T> + Clone) -> Handle<Self>
     where
         T: ToStringLocalized,
     {
-        Self { describing: None }
-            .build(cx, |_| {})
-            .text(text.clone())
-            .role(Role::StaticText)
-            .name(text)
+        Self { describing: None }.build(|| {}).text(text.clone())
+        //.role(Role::StaticText).name(text)
     }
 }
 
-impl Handle<'_, Label> {
+impl Handle<Label> {
     /// Which form element does this label describe.
     ///
     /// # Examples
@@ -139,9 +136,11 @@ impl Handle<'_, Label> {
     /// ```
     pub fn describing(self, entity_identifier: impl Into<String>) -> Self {
         let identifier = entity_identifier.into();
-        if let Some(id) = self.cx.resolve_entity_identifier(&identifier) {
-            self.cx.style.labelled_by.insert(id, self.entity);
-        }
+        CONTEXT.with_borrow_mut(|cx| {
+            if let Some(id) = cx.resolve_entity_identifier(&identifier) {
+                cx.style.labelled_by.insert(id, self.entity);
+            }
+        });
         self.modify(|label| label.describing = Some(identifier)).class("describing")
     }
 }
@@ -196,7 +195,8 @@ impl Icon {
     where
         T: ToStringLocalized,
     {
-        Self {}.build(cx, |_| {}).text(icon_code).role(Role::StaticText)
+        Self {}.build(|| {}).text(icon_code)
+        //.role(Role::StaticText)
     }
 }
 
